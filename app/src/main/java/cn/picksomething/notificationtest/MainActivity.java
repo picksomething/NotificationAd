@@ -28,6 +28,7 @@ public class MainActivity extends Activity implements View.OnClickListener, IBas
     Intent intent;
     PendingIntent pendingIntent;
     Handler handler;
+    Runnable runnable;
 
     private Button mShowNormalNotification;
     private Button mShowMultiIconNotification;
@@ -43,16 +44,18 @@ public class MainActivity extends Activity implements View.OnClickListener, IBas
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        initDatas();
         findViews();
         setListeners();
-        handler = new Handler();
-        handler.postDelayed(new Runnable() {
+        initDatas();
+        runnable=new Runnable() {
             @Override
             public void run() {
+                // TODO Auto-generated method stub
                 showNoramlNotification(false);
+                handler.postDelayed(this, 3000);
             }
-        }, 3000);
+        };
+        handler.postDelayed(runnable, 3000);//每3秒执行一次runnable.
     }
 
     /**
@@ -63,6 +66,7 @@ public class MainActivity extends Activity implements View.OnClickListener, IBas
         notificationManager = (NotificationManager) getSystemService(this.getApplicationContext().NOTIFICATION_SERVICE);
         intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://huhulab.com/"));
         pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        handler = new Handler();
         showNoramlNotification(true);
         showMultiIconNotificaiton(true);
         showBannerNotification(true);
@@ -207,5 +211,11 @@ public class MainActivity extends Activity implements View.OnClickListener, IBas
             default:
                 break;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        handler.removeCallbacks(runnable);
     }
 }
