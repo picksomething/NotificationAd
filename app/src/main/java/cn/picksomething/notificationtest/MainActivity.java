@@ -8,16 +8,25 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RemoteViews;
 
 
-public class MainActivity extends Activity implements View.OnClickListener {
+public class MainActivity extends Activity implements View.OnClickListener, IBaseSettings {
 
-    public NotificationManager notificationManager;
-    public Notification notification;
+    private static final int PRO_NOTIFICATION_ID = 1000;
+    private static final int MULIT_ICON_NOTIFICATION_ID = 1001;
+    private static final int BANNER_NOTIFICATION_ID = 1002;
+
+    NotificationManager notificationManager;
+    RemoteViews remoteViews;
+    NotificationCompat.Builder builder;
+    Intent intent;
+    PendingIntent pendingIntent;
+    Handler handler;
 
     private Button mShowNormalNotification;
     private Button mShowMultiIconNotification;
@@ -34,19 +43,33 @@ public class MainActivity extends Activity implements View.OnClickListener {
         initDatas();
         findViews();
         setListeners();
+        handler=new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                showNoramlNotification(false);
+            }
+        },5000);
     }
 
     /**
-     * initDates use for init some necessary things
+     * Init some necessary things
      */
-    private void initDatas() {
+    @Override
+    public void initDatas() {
         notificationManager = (NotificationManager) getSystemService(this.getApplicationContext().NOTIFICATION_SERVICE);
+        intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://huhulab.com/"));
+        pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        showNoramlNotification(true);
+        showMultiIconNotificaiton(true);
+        showBannerNotification(true);
     }
 
     /**
-     * findViews by ids
+     * FindViews by ids
      */
-    private void findViews() {
+    @Override
+    public void findViews() {
         mShowNormalNotification = (Button) findViewById(R.id.addNormalNotify);
         mShowMultiIconNotification = (Button) findViewById(R.id.addMultiIconNotify);
         mShowBannerNotification = (Button) findViewById(R.id.addBannerNotify);
@@ -54,72 +77,77 @@ public class MainActivity extends Activity implements View.OnClickListener {
     }
 
     /**
-     * set listeners for some elements
+     * Set listeners for some elements
      */
-    private void setListeners() {
+    @Override
+    public void setListeners() {
         mShowNormalNotification.setOnClickListener(this);
         mShowMultiIconNotification.setOnClickListener(this);
         mShowBannerNotification.setOnClickListener(this);
         mCancelAllNotification.setOnClickListener(this);
     }
 
-    private void showBannerNotification() {
-        RemoteViews bannerViews = new RemoteViews(getPackageName(),
-                R.layout.banner_view);
-        bannerViews.setImageViewResource(R.id.banner, R.drawable.baidu);
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://huhulab.com/"));
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
-                this).setSmallIcon(R.drawable.ic_launcher)
-                .setContentTitle("Custom Notification")
-                .setTicker("new message");
-        //mBuilder.setAutoCancel(true);
-        mBuilder.setOngoing(true);
-        mBuilder.setContentIntent(pendingIntent);
-        mBuilder.setContent(bannerViews);
-        notificationManager.notify(100, mBuilder.build());
+    private void showBannerNotification(boolean isResident) {
+        remoteViews = new RemoteViews(getPackageName(), R.layout.banner_view);
+        remoteViews.setImageViewResource(R.id.banner, R.drawable.baidu);
+        builder = new NotificationCompat.Builder(this);
+        builder.setSmallIcon(R.drawable.ic_launcher);
+        builder.setContentTitle("Custom Notification");
+        builder.setTicker("new message");
+        builder.setContentIntent(pendingIntent);
+        builder.setContent(remoteViews);
+        if(isResident){
+            builder.setOngoing(true);
+            notificationManager.notify(BANNER_NOTIFICATION_ID, builder.build());
+        }else{
+            builder.setAutoCancel(true);
+            notificationManager.notify(mNoPresidentNotificationNum, builder.build());
+        }
+
     }
 
-    private void showMultiIconNotificaiton() {
-        RemoteViews multiIconView = new RemoteViews(getPackageName(),
-                R.layout.multi_icon_view);
-        multiIconView.setImageViewResource(R.id.icon1, R.drawable.ic_launcher);
-        multiIconView.setImageViewResource(R.id.icon2, R.drawable.ic_launcher);
-        multiIconView.setImageViewResource(R.id.icon3, R.drawable.ic_launcher);
-        multiIconView.setImageViewResource(R.id.icon4, R.drawable.ic_launcher);
-        multiIconView.setImageViewResource(R.id.icon5, R.drawable.ic_launcher);
-        multiIconView.setImageViewResource(R.id.icon6, R.drawable.ic_launcher);
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://huhulab.com/"));
-        PendingIntent pendingIntent = PendingIntent.getActivity(
-                MainActivity.this, 0, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
-                this).setSmallIcon(R.drawable.ic_launcher)
-                .setContentTitle("Custom Notification")
-                .setTicker("new message");
-        //mBuilder.setAutoCancel(true);
-        mBuilder.setOngoing(true);
-        mBuilder.setContentIntent(pendingIntent);
-        mBuilder.setContent(multiIconView);
-        notificationManager.notify(1000, mBuilder.build());
+    private void showMultiIconNotificaiton(boolean isResident) {
+        remoteViews = new RemoteViews(getPackageName(), R.layout.multi_icon_view);
+        remoteViews.setImageViewResource(R.id.icon1, R.drawable.ic_launcher);
+        remoteViews.setImageViewResource(R.id.icon2, R.drawable.ic_launcher);
+        remoteViews.setImageViewResource(R.id.icon3, R.drawable.ic_launcher);
+        remoteViews.setImageViewResource(R.id.icon4, R.drawable.ic_launcher);
+        remoteViews.setImageViewResource(R.id.icon5, R.drawable.ic_launcher);
+        remoteViews.setImageViewResource(R.id.icon6, R.drawable.ic_launcher);
+        builder = new NotificationCompat.Builder(this);
+        builder.setSmallIcon(R.drawable.ic_launcher);
+        builder.setContentTitle("Custom Notification");
+        builder.setTicker("new message");
+        builder.setContentIntent(pendingIntent);
+        builder.setContent(remoteViews);
+        if(isResident){
+            builder.setOngoing(true);
+            notificationManager.notify(MULIT_ICON_NOTIFICATION_ID, builder.build());
+        }else{
+            builder.setAutoCancel(true);
+            notificationManager.notify(mNoPresidentNotificationNum, builder.build());
+        }
+
     }
 
     /**
      * create Notifications according param isResident
      */
-    private void showNoramlNotification() {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+    private void showNoramlNotification(boolean isResident) {
+        builder = new NotificationCompat.Builder(this);
         builder.setSmallIcon(R.drawable.ic_launcher);
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://huhulab.com/"));
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
         builder.setContentIntent(pendingIntent);
         builder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher));
-        builder.setContentTitle("This is ContentTitle");
+        builder.setTicker("new message");
         builder.setContentText("This is ContentText");
         builder.setSubText("This is subText");
-        //builder.setAutoCancel(true);
-        builder.setOngoing(true);
-        notificationManager.notify(mNoPresidentNotificationNum, builder.build());
+        if(isResident){
+            builder.setOngoing(true);
+            notificationManager.notify(PRO_NOTIFICATION_ID, builder.build());
+        }else{
+            builder.setAutoCancel(true);
+            notificationManager.notify(mNoPresidentNotificationNum++, builder.build());
+        }
 
     }
 
@@ -134,13 +162,13 @@ public class MainActivity extends Activity implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.addNormalNotify:
-                showNoramlNotification();
+                showNoramlNotification(false);
                 break;
             case R.id.addMultiIconNotify:
-                showMultiIconNotificaiton();
+                showMultiIconNotificaiton(false);
                 break;
             case R.id.addBannerNotify:
-                showBannerNotification();
+                showBannerNotification(false);
                 break;
             case R.id.cancelAllNotify:
                 cancelAllNotification();
