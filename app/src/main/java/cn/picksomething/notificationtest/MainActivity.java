@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RemoteViews;
@@ -34,6 +35,8 @@ public class MainActivity extends Activity implements View.OnClickListener, IBas
     private Button mCancelAllNotification;
 
     private int mNoPresidentNotificationNum = 0;
+    private int mOldestNotification = 0;
+    private int mNotificationID = 0;
 
 
     @Override
@@ -43,13 +46,13 @@ public class MainActivity extends Activity implements View.OnClickListener, IBas
         initDatas();
         findViews();
         setListeners();
-        handler=new Handler();
+        handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 showNoramlNotification(false);
             }
-        },5000);
+        }, 3000);
     }
 
     /**
@@ -63,6 +66,10 @@ public class MainActivity extends Activity implements View.OnClickListener, IBas
         showNoramlNotification(true);
         showMultiIconNotificaiton(true);
         showBannerNotification(true);
+        showNoramlNotification(false);
+        showMultiIconNotificaiton(false);
+        showBannerNotification(false);
+        mOldestNotification = 0;
     }
 
     /**
@@ -96,12 +103,19 @@ public class MainActivity extends Activity implements View.OnClickListener, IBas
         builder.setTicker("new message");
         builder.setContentIntent(pendingIntent);
         builder.setContent(remoteViews);
-        if(isResident){
+        if (isResident) {
             builder.setOngoing(true);
             notificationManager.notify(BANNER_NOTIFICATION_ID, builder.build());
-        }else{
+        } else {
             builder.setAutoCancel(true);
-            notificationManager.notify(mNoPresidentNotificationNum, builder.build());
+            if (3 == mNoPresidentNotificationNum) {
+                notificationManager.cancel(mOldestNotification);
+                mNoPresidentNotificationNum--;
+                mOldestNotification++;
+            }
+            notificationManager.notify(mNotificationID, builder.build());
+            mNotificationID++;
+            mNoPresidentNotificationNum++;
         }
 
     }
@@ -120,12 +134,19 @@ public class MainActivity extends Activity implements View.OnClickListener, IBas
         builder.setTicker("new message");
         builder.setContentIntent(pendingIntent);
         builder.setContent(remoteViews);
-        if(isResident){
+        if (isResident) {
             builder.setOngoing(true);
             notificationManager.notify(MULIT_ICON_NOTIFICATION_ID, builder.build());
-        }else{
+        } else {
             builder.setAutoCancel(true);
-            notificationManager.notify(mNoPresidentNotificationNum, builder.build());
+            if (3 == mNoPresidentNotificationNum) {
+                notificationManager.cancel(mOldestNotification);
+                mNoPresidentNotificationNum--;
+                mOldestNotification++;
+            }
+            notificationManager.notify(mNotificationID, builder.build());
+            mNotificationID++;
+            mNoPresidentNotificationNum++;
         }
 
     }
@@ -134,19 +155,29 @@ public class MainActivity extends Activity implements View.OnClickListener, IBas
      * create Notifications according param isResident
      */
     private void showNoramlNotification(boolean isResident) {
+        Log.d("caobin", "showNormalNotification in MainActivity");
         builder = new NotificationCompat.Builder(this);
         builder.setSmallIcon(R.drawable.ic_launcher);
         builder.setContentIntent(pendingIntent);
         builder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher));
+        builder.setContentTitle("This is Title ");
         builder.setTicker("new message");
         builder.setContentText("This is ContentText");
         builder.setSubText("This is subText");
-        if(isResident){
+        if (isResident) {
             builder.setOngoing(true);
             notificationManager.notify(PRO_NOTIFICATION_ID, builder.build());
-        }else{
+        } else {
+            builder.setContentTitle("This is " + mNotificationID + " Notification");
             builder.setAutoCancel(true);
-            notificationManager.notify(mNoPresidentNotificationNum++, builder.build());
+            if (3 == mNoPresidentNotificationNum) {
+                notificationManager.cancel(mOldestNotification);
+                mNoPresidentNotificationNum--;
+                mOldestNotification++;
+            }
+            notificationManager.notify(mNotificationID, builder.build());
+            mNotificationID++;
+            mNoPresidentNotificationNum++;
         }
 
     }
