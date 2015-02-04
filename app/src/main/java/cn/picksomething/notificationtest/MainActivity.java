@@ -1,7 +1,6 @@
 package cn.picksomething.notificationtest;
 
 import android.app.Activity;
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -47,11 +46,22 @@ public class MainActivity extends Activity implements View.OnClickListener, IBas
         findViews();
         setListeners();
         initDatas();
-        runnable=new Runnable() {
+        runnable = new Runnable() {
             @Override
             public void run() {
-                // TODO Auto-generated method stub
-                showNoramlNotification(false);
+                switch (mNotificationID % 3) {
+                    case 0:
+                        showNoramlNotification(false);
+                        break;
+                    case 1:
+                        showMultiIconNotificaiton(false);
+                        break;
+                    case 2:
+                        showBannerNotification(false);
+                        break;
+                    default:
+                        break;
+                }
                 handler.postDelayed(this, 3000);
             }
         };
@@ -126,12 +136,12 @@ public class MainActivity extends Activity implements View.OnClickListener, IBas
 
     private void showMultiIconNotificaiton(boolean isResident) {
         remoteViews = new RemoteViews(getPackageName(), R.layout.multi_icon_view);
-        remoteViews.setImageViewResource(R.id.icon1, R.drawable.ic_launcher);
-        remoteViews.setImageViewResource(R.id.icon2, R.drawable.ic_launcher);
-        remoteViews.setImageViewResource(R.id.icon3, R.drawable.ic_launcher);
-        remoteViews.setImageViewResource(R.id.icon4, R.drawable.ic_launcher);
-        remoteViews.setImageViewResource(R.id.icon5, R.drawable.ic_launcher);
-        remoteViews.setImageViewResource(R.id.icon6, R.drawable.ic_launcher);
+        //remoteViews.setImageViewResource(R.id.icon1, R.drawable.ic_launcher);
+        //remoteViews.setImageViewResource(R.id.icon2, R.drawable.ic_launcher);
+        //remoteViews.setImageViewResource(R.id.icon3, R.drawable.ic_launcher);
+        //remoteViews.setImageViewResource(R.id.icon4, R.drawable.ic_launcher);
+        //remoteViews.setImageViewResource(R.id.icon5, R.drawable.ic_launcher);
+        //remoteViews.setImageViewResource(R.id.icon6, R.drawable.ic_launcher);
         builder = new NotificationCompat.Builder(this);
         builder.setSmallIcon(R.drawable.ic_launcher);
         builder.setContentTitle("Custom Notification");
