@@ -136,12 +136,11 @@ public class MainActivity extends Activity implements View.OnClickListener, IBas
 
     private void showMultiIconNotificaiton(boolean isResident) {
         remoteViews = new RemoteViews(getPackageName(), R.layout.multi_icon_view);
-        //remoteViews.setImageViewResource(R.id.icon1, R.drawable.ic_launcher);
-        //remoteViews.setImageViewResource(R.id.icon2, R.drawable.ic_launcher);
-        //remoteViews.setImageViewResource(R.id.icon3, R.drawable.ic_launcher);
-        //remoteViews.setImageViewResource(R.id.icon4, R.drawable.ic_launcher);
-        //remoteViews.setImageViewResource(R.id.icon5, R.drawable.ic_launcher);
-        //remoteViews.setImageViewResource(R.id.icon6, R.drawable.ic_launcher);
+        remoteViews.setImageViewResource(R.id.icon1, R.drawable.ic_launcher);
+        remoteViews.setImageViewResource(R.id.icon2, R.drawable.ic_launcher);
+        remoteViews.setImageViewResource(R.id.icon3, R.drawable.ic_launcher);
+        remoteViews.setImageViewResource(R.id.icon4, R.drawable.ic_launcher);
+        remoteViews.setImageViewResource(R.id.icon5, R.drawable.ic_launcher);
         builder = new NotificationCompat.Builder(this);
         builder.setSmallIcon(R.drawable.ic_launcher);
         builder.setContentTitle("Custom Notification");
